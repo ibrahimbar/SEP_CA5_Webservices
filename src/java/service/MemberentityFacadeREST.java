@@ -111,6 +111,76 @@ public class MemberentityFacadeREST extends AbstractFacade<Memberentity> {
             return Response.status(Response.Status.UNAUTHORIZED).build();
         }
     }
+    
+    
+    
+    @GET
+    @Path("getMemberByEmail")
+    @Produces("application/json")
+    public Response getMemberByEmail(@QueryParam("email") String email) {
+        try {
+            Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/islandfurniture-it07?zeroDateTimeBehavior=convertToNull&user=root&password=12345");
+            String stmt = "SELECT * FROM memberentity m WHERE m.EMAIL=?";
+            PreparedStatement ps = conn.prepareStatement(stmt);
+            ps.setString(1, email);
+            ResultSet rs = ps.executeQuery();
+            Member m = new Member();       
+            rs.next();
+            m.setAge(rs.getInt("Age"));
+            m.setEmail(rs.getString("Email"));
+            m.setCity(rs.getString("City"));
+            m.setName(rs.getString("Name"));
+            m.setPhone(rs.getString("Phone"));
+            m.setAddress(rs.getString("Address"));
+            m.setIncome(rs.getInt("Income"));
+            m.setSecurityQuestion(rs.getInt("SecurityQuestion"));
+            m.setSecurityAnswer(rs.getString("SecurityAnswer"));
+            return Response
+                    .status(200)
+                    .entity(m)
+                    .build();
+            
+            
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return Response.status(Response.Status.UNAUTHORIZED).build();
+        }
+    }
+    
+    @PUT
+    @Path("updateMember")
+    @Consumes({"application/json"})
+    public Response updateMember(@QueryParam("email") String email, @QueryParam("name") String name, @QueryParam("phone") String phone,
+    @QueryParam("address") String address, @QueryParam("securityquestion") int securityquestion, 
+    @QueryParam("securityanswer") String securityanswer, @QueryParam("age") int age, @QueryParam("income") int income) {
+        try {
+            Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/islandfurniture-it07?zeroDateTimeBehavior=convertToNull&user=root&password=12345");
+            String stmt = "UPDATE memberentity m SET m.name=?, m.phone=?, m.address=?, m.SECURITYQUESTION=?, m.SECURITYANSWER=?, m.age=?, m.income=? WHERE m.email=?";
+            PreparedStatement ps = conn.prepareStatement(stmt);
+            ps.setString(1, name);
+            ps.setString(2, phone);
+            ps.setString(3, address);
+            ps.setInt(4, securityquestion);
+            ps.setString(5, securityanswer);
+            ps.setInt(6, age);
+            ps.setInt(7, income);
+            ps.setString(8, email);
+            int result = ps.executeUpdate();
+            if (result > 0) {
+                return Response.status(Response.Status.OK).build();
+
+            }
+            else {
+                return Response.status(Response.Status.BAD_REQUEST).build();
+            }
+            
+            
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return Response.status(Response.Status.UNAUTHORIZED).build();
+        }
+    }
+    
 
     public String generatePasswordSalt() {
         byte[] salt = new byte[16];
